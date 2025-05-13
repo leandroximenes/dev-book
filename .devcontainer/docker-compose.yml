@@ -1,0 +1,47 @@
+version: '3.8'
+
+volumes:
+  mysql-data:
+    driver: local
+
+networks:
+  app-net:
+    driver: bridge
+
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      # Ensure that the variables in .env match the same variables in devcontainer.json
+      - .env
+
+    volumes:
+      - ../:/workspaces:cached
+
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+
+    # Expose port 2345 for debugging
+    ports:
+      - 2345:2345
+
+    # Connect app to the custom network
+    networks:
+      - app-net
+
+  db:
+    image: mysql:latest
+    ports:
+      - '${FORWARD_DB_PORT:-3306}:3306'
+    restart: unless-stopped
+    volumes:
+      - mysql-data:/var/lib/mysql
+    env_file:
+      # Ensure that the variables in .env match the same variables in devcontainer.json
+      - .env
+
+    # Connect db to the custom network
+    networks:
+      - app-net

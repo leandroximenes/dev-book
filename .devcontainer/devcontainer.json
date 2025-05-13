@@ -1,0 +1,29 @@
+// .devcontainer/devcontainer.json
+{
+    "name": "Dev Book",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "app",
+    "workspaceFolder": "/workspaces",
+    "initializeCommand": "bash -c '[[ $(docker ps -aq) ]] && docker stop $(docker ps -aq) && docker rm $(docker ps -aq) || echo \"No container running\"'",
+    "settings": {
+        "go.gopath": "/go",
+        "go.toolsGopath": "/go"
+    },
+    "extensions": [
+        "golang.go",
+        "mhutchie.git-graph"
+    ],
+    "forwardPorts": [
+        2345
+    ],
+    "runArgs": [
+        "--init"
+    ],
+    "containerEnv": {
+        "GO111MODULE": "on"
+    },
+    "remoteUser": "vscode",
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils:2": {}
+    }
+}
