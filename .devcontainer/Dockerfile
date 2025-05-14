@@ -32,5 +32,8 @@ RUN git config --global --add safe.directory /workspaces
 # Set the working directory
 WORKDIR /workspace
 
+# Set devcontainer 
+RUN chown -R vscode:vscode /go
+
 # Expose the debugging port
-EXPOSE 2345
+EXPOSE 2345 3000

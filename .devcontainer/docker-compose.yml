@@ -26,6 +26,7 @@ services:
     # Expose port 2345 for debugging
     ports:
       - 2345:2345
+      - 3000:3000
 
     # Connect app to the custom network
     networks:
