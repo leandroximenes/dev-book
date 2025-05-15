@@ -1,15 +1,17 @@
 package main
 
 import (
-	"api/src/router"
 	"fmt"
 	"log"
+	"main/src/router"
 	"net/http"
+	"os"
 )
 
 func main() {
-	fmt.Println("Listening port 3000")
+	port := os.Getenv("PORT")
 	r := router.RunServer()
 
-	log.Fatal(http.ListenAndServe(":3000", r))
+	fmt.Printf("Listening port %s", port)
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }

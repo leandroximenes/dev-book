@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"api/src/router/controllers"
+	"main/src/router/controllers"
 	"net/http"
 )
 

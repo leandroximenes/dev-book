@@ -1,2 +1,3 @@
 # Devcontainer environment files
 .devcontainer/.env
+.env

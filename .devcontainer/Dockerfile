@@ -1,7 +1,7 @@
-# Use your existing base image
-FROM mcr.microsoft.com/devcontainers/go:1-1.23-bookworm
+# ——— Base image ——— 
+FROM mcr.microsoft.com/devcontainers/go:1-1.22-bookworm
 
-# Install necessary packages
+# ——— Install necessary packages ——— 
 RUN apt-get update && apt-get install -y \
     curl \
     jq \
@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
     sudo \
     && rm -rf /var/lib/apt/lists/*
 
-# Install GitHub CLI
+# ——— Install GitHub CLI ——— 
 RUN mkdir -p -m 755 /etc/apt/keyrings && \
     wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null && \
     chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg && \
@@ -17,23 +17,26 @@ RUN mkdir -p -m 755 /etc/apt/keyrings && \
     apt-get update && \
     apt-get install gh -y
 
-# Install Delve for debugging (if needed)
+# ——— Install heroku ——— 
+RUN curl https://cli-assets.heroku.com/install.sh | sh
+
+# ——— Install Delve for debugging (if needed) ——— 
 RUN go install github.com/go-delve/delve/cmd/dlv@latest
 
-# Add /root/bin to PATH (if needed)
+# ——— Add /root/bin to PATH (if needed) ——— 
 ENV PATH="${PATH}:/root/bin"
 
-# Set the workspace directory
+# ——— Set the workspace directory ——— 
 ENV EXERCISM_WORKSPACE=/workspaces/exercism
 
-# Add /workspaces as a safe directory in Git configuration
+# ——— Add /workspaces as a safe directory in Git configuration ——— 
 RUN git config --global --add safe.directory /workspaces
 
-# Set the working directory
+# ——— Set the working directory ——— 
 WORKDIR /workspace
 
-# Set devcontainer 
+# ——— Set devcontainer  ——— 
 RUN chown -R vscode:vscode /go
 
-# Expose the debugging port
+# ——— Expose the debugging port ——— 
 EXPOSE 2345 3000
