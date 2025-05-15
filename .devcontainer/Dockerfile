@@ -17,6 +17,9 @@ RUN mkdir -p -m 755 /etc/apt/keyrings && \
     apt-get update && \
     apt-get install gh -y
 
+# Install heroku
+RUN curl https://cli-assets.heroku.com/install.sh | sh
+
 # Install Delve for debugging (if needed)
 RUN go install github.com/go-delve/delve/cmd/dlv@latest
 
