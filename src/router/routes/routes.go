@@ -7,14 +7,14 @@ import (
 )
 
 type Route struct {
-	Uri                    string
+	URI                    string
 	Method                 string
 	Function               func(http.ResponseWriter, *http.Request)
 	AuthenticationRequired bool
 }
 
 var healthRoute = Route{
-	Uri:    "/",
+	URI:    "/",
 	Method: http.MethodGet,
 	Function: func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Hello world"))
@@ -29,7 +29,7 @@ func Config(r *mux.Router) *mux.Router {
 	routes = append(routes, UserRoutes...)
 
 	for _, route := range routes {
-		r.HandleFunc(route.Uri, route.Function).Methods(route.Method)
+		r.HandleFunc(route.URI, route.Function).Methods(route.Method)
 	}
 
 	return r
