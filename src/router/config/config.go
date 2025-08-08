@@ -15,9 +15,16 @@ var (
 
 func Load() {
 	var err error
+	appEnv := os.Getenv("APP_ENV")
 
-	if err = godotenv.Load(); err != nil {
-		log.Fatal(err)
+	// Only load .env file if we are in "dev" or "test"
+	if appEnv != "prod" {
+		err := godotenv.Load()
+		if err != nil {
+			log.Println("Warning: Could not load .env file")
+		} else {
+			log.Println(".env file loaded")
+		}
 	}
 
 	Port, err = strconv.Atoi(os.Getenv("API_PORT"))
