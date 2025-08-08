@@ -4,14 +4,15 @@ import (
 	"fmt"
 	"log"
 	"main/src/router"
+	"main/src/router/config"
 	"net/http"
-	"os"
 )
 
 func main() {
-	port := os.Getenv("PORT")
-	r := router.RunServer()
+	config.Load()
+	fmt.Printf("Listening Port %d\n", config.Port)
 
-	fmt.Printf("Listening port %s", port)
-	log.Fatal(http.ListenAndServe(":"+port, r))
+	addr := fmt.Sprintf(":%d", config.Port)
+	r := router.RunServer()
+	log.Fatal(http.ListenAndServe(addr, r))
 }
