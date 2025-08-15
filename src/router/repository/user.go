@@ -15,14 +15,14 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 }
 
 func (repo UserRepository) Create(userModel models.User) (int, error) {
-	statment, err := repo.db.Prepare("INSERT INTO users (name, slug, email, password) values (?, ?, ?, ?)")
+	statement, err := repo.db.Prepare("INSERT INTO users (name, slug, email, password) values (?, ?, ?, ?)")
 	if err != nil {
 		return 0, err
 	}
 
-	defer statment.Close()
+	defer statement.Close()
 
-	result, err := statment.Exec(userModel.Name, userModel.Slug, userModel.Email, userModel.Password)
+	result, err := statement.Exec(userModel.Name, userModel.Slug, userModel.Email, userModel.Password)
 	if err != nil {
 		return 0, err
 	}
