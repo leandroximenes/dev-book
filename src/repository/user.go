@@ -2,7 +2,7 @@ package repository
 
 import (
 	"database/sql"
-	"main/src/router/models"
+	"main/src/models"
 )
 
 type UserRepository struct {
