@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"main/src/router/config"
+	"main/src/router/dtos"
 	"main/src/router/models"
 	"main/src/router/repository"
 	"net/http"
@@ -16,34 +16,35 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	bodyRequest, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Println("Error reading request body:", err)
-		http.Error(w, "Failed to read request body", http.StatusBadRequest)
+		responses.Error(w, http.StatusUnprocessableEntity, err)
 		return
 	}
 
 	var user models.User
 	if err = json.Unmarshal(bodyRequest, &user); err != nil {
-		log.Println("Error unmarshalling request body:", err)
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		log.Println("Error deserialization request body:", err)
+		responses.Error(w, http.StatusBadRequest, err)
 		return
 	}
 
 	db, err := config.Connect()
 	if err != nil {
 		log.Println("Error connecting to database:", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		responses.Error(w, http.StatusInternalServerError, err)
 		return
 	}
+	defer db.Close()
 
 	repository := repository.NewUserRepository(db)
-	id, err := repository.Create(user)
+	user.ID, err = repository.Create(user)
 	if err != nil {
 		log.Println("Error creating user:", err)
-		http.Error(w, "Failed to create user", http.StatusInternalServerError)
+		responses.Error(w, http.StatusInternalServerError, err)
 		return
 	}
 
 	log.Printf("New user created with success")
-	w.Write([]byte(fmt.Sprintf("Id inserted: %d", id)))
+	responses.JSON(w, http.StatusCreated, user)
 }
 
 func GetUsers(w http.ResponseWriter, r *http.Request) {
