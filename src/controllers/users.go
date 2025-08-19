@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"io"
 	"log"
-	"main/src/router/config"
-	"main/src/router/dtos"
-	"main/src/router/models"
-	"main/src/router/repository"
+	"main/src/config"
+	"main/src/dtos"
+	"main/src/models"
+	"main/src/repository"
 	"net/http"
 )
 

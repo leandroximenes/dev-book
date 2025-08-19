@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+	"main/src/config"
 	"main/src/router"
-	"main/src/router/config"
 	"net/http"
 )
 
