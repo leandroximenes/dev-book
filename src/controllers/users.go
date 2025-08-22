@@ -5,14 +5,18 @@ import (
 	"io"
 	"log"
 	"main/src/config"
-	"main/src/dtos"
+	dto "main/src/dtos"
 	"main/src/models"
 	"main/src/repository"
+	"main/src/responses"
 	"net/http"
 )
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	log.Println("Creating new user")
+	var userDto dto.UserDto
+	var user models.User
+	
 	bodyRequest, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Println("Error reading request body:", err)
@@ -20,10 +24,16 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user models.User
-	if err = json.Unmarshal(bodyRequest, &user); err != nil {
+	if err = json.Unmarshal(bodyRequest, &userDto); err != nil {
 		log.Println("Error deserialization request body:", err)
 		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	err = userDto.Prepare()
+	if err != nil {
+		log.Println("Error in body dto:", err)
+		responses.Error(w, http.StatusUnprocessableEntity, err)
 		return
 	}
 
@@ -34,6 +44,8 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer db.Close()
+
+	user.ConvertFromDto(userDto)
 
 	repository := repository.NewUserRepository(db)
 	user.ID, err = repository.Create(user)
