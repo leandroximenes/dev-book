@@ -10,6 +10,7 @@ import (
 	"main/src/repository"
 	"main/src/responses"
 	"net/http"
+	"strings"
 )
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -60,7 +61,26 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetUsers(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Get users"))
+	nameOrSlug := strings.ToLower(r.URL.Query().Get("user"))
+
+	db, err := config.Connect()
+	if err != nil {
+		log.Println("Error connecting to database:", err)
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repository := repository.NewUserRepository(db)
+	users, err := repository.GetUsers(nameOrSlug)
+	if err != nil {
+		log.Println("Error to find users:", err)
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	log.Printf("Users found with success")
+	responses.JSON(w, http.StatusOK, users)
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
