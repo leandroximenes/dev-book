@@ -43,6 +43,7 @@ func (repo UserRepository) GetUsers(slugOrName string) ([]models.User, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	var users []models.User
 	for rows.Next() {
@@ -64,4 +65,30 @@ func (repo UserRepository) GetUsers(slugOrName string) ([]models.User, error) {
 	}
 
 	return users, nil
+}
+
+func (repo UserRepository) GetUser(id uint64) (models.User, error) {
+
+	rows, err := repo.db.Query("SELECT * FROM users WHERE id = ?", id)
+	if err != nil {
+		return models.User{}, err
+	}
+	defer rows.Close()
+
+	var user models.User
+	if rows.Next() {
+		if err = rows.Scan(
+			&user.ID,
+			&user.Name,
+			&user.Slug,
+			&user.Email,
+			&user.Password,
+			&user.CreatedAt,
+		); err != nil {
+			return models.User{}, err
+		}
+	}
+
+	return user, nil
+
 }

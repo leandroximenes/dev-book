@@ -10,14 +10,17 @@ import (
 	"main/src/repository"
 	"main/src/responses"
 	"net/http"
+	"strconv"
 	"strings"
+
+	"github.com/gorilla/mux"
 )
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	log.Println("Creating new user")
 	var userDto dto.UserDto
 	var user models.User
-	
+
 	bodyRequest, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Println("Error reading request body:", err)
@@ -84,7 +87,33 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Get user"))
+	params := mux.Vars(r)
+
+	userId, err := strconv.ParseUint(params["userId"], 10, 64)
+	if err != nil || !(userId > 0) {
+		log.Println("Invalid param:", err)
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	db, err := config.Connect()
+	if err != nil {
+		log.Println("Error connecting to database:", err)
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repository := repository.NewUserRepository(db)
+	user, err := repository.GetUser(userId)
+	if err != nil {
+		log.Println("Error to find user:", err)
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	log.Printf("Users found with success")
+	responses.JSON(w, http.StatusOK, user)
 }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
