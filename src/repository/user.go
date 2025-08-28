@@ -96,13 +96,13 @@ func (repo UserRepository) GetUser(id uint64) (models.User, error) {
 }
 
 func (repo UserRepository) UpdateUser(userModel models.User) error {
-	statement, err := repo.db.Prepare("UPDATE users SET name = ?, slug = ?, email = ? WHERE id = ?")
+	statement, err := repo.db.Prepare("UPDATE users SET name = ?, slug = ?, email = ?, updated_at = ? WHERE id = ?")
 	if err != nil {
 		return err
 	}
 	defer statement.Close()
 
-	_, err = statement.Exec(userModel.Name, userModel.Slug, userModel.Email, userModel.ID)
+	_, err = statement.Exec(userModel.Name, userModel.Slug, userModel.Email, userModel.UpdatedAt, userModel.ID)
 	if err != nil {
 		return err
 	}
