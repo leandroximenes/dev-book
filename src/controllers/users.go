@@ -117,7 +117,53 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Update user"))
+	params := mux.Vars(r)
+
+	userId, err := strconv.ParseUint(params["userId"], 10, 64)
+	if err != nil || !(userId > 0) {
+		log.Println("Invalid param:", err)
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	var userUpdateDto dto.UserUpdateDto
+	payload, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Println("Error reading request body", err)
+		responses.Error(w, http.StatusBadRequest, err)
+	}
+
+	if err = json.Unmarshal(payload, &userUpdateDto); err != nil {
+		log.Println("Error deserialization request body", err)
+		responses.Error(w, http.StatusBadRequest, err)
+	}
+
+	if err = userUpdateDto.Prepare(); err != nil {
+		log.Println("Error in body dto", err)
+		responses.Error(w, http.StatusBadRequest, err)
+	}
+
+	var user models.User
+	db, err := config.Connect()
+	if err != nil {
+		log.Println("Error connecting to database:", err)
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	user.ConvertFromUpdateDto(userId, userUpdateDto)
+
+	repository := repository.NewUserRepository(db)
+	err = repository.UpdateUser(user)
+	if err != nil {
+		log.Println("Error updating user:", err)
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	log.Printf("New user updated with success")
+	responses.JSON(w, http.StatusNoContent, nil)
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
