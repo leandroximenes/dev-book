@@ -13,6 +13,7 @@ type User struct {
 	Email     string     `json:"email,omitempty"`
 	Password  string     `json:"password,omitempty"`
 	CreatedAt *time.Time `json:"created_at,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
 }
 
 func (userModel *User) ConvertFromDto(userDto dto.UserDto) {
@@ -24,5 +25,17 @@ func (userModel *User) ConvertFromDto(userDto dto.UserDto) {
 	if userModel.CreatedAt == nil {
 		now := time.Now()
 		userModel.CreatedAt = &now
+	}
+}
+
+func (userModel *User) ConvertFromUpdateDto(id uint64, userDto dto.UserUpdateDto) {
+	userModel.ID = int(id)
+	userModel.Name = userDto.Name
+	userModel.Email = userDto.Email
+	userModel.Slug = utils.Slugify(userDto.Name)
+
+	if userModel.UpdatedAt == nil {
+		now := time.Now()
+		userModel.UpdatedAt = &now
 	}
 }

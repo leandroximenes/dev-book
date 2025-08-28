@@ -56,6 +56,7 @@ func (repo UserRepository) GetUsers(slugOrName string) ([]models.User, error) {
 			&user.Email,
 			&user.Password,
 			&user.CreatedAt,
+			&user.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -84,11 +85,28 @@ func (repo UserRepository) GetUser(id uint64) (models.User, error) {
 			&user.Email,
 			&user.Password,
 			&user.CreatedAt,
+			&user.UpdatedAt,
 		); err != nil {
 			return models.User{}, err
 		}
 	}
 
 	return user, nil
+
+}
+
+func (repo UserRepository) UpdateUser(userModel models.User) error {
+	statement, err := repo.db.Prepare("UPDATE users SET name = ?, slug = ?, email = ? WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	_, err = statement.Exec(userModel.Name, userModel.Slug, userModel.Email, userModel.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 
 }
