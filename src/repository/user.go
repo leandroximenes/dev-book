@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"main/src/models"
 )
@@ -105,6 +106,30 @@ func (repo UserRepository) UpdateUser(userModel models.User) error {
 	_, err = statement.Exec(userModel.Name, userModel.Slug, userModel.Email, userModel.UpdatedAt, userModel.ID)
 	if err != nil {
 		return err
+	}
+
+	return nil
+
+}
+
+func (repo UserRepository) DeleteUser(user_id uint64) error {
+	statement, err := repo.db.Prepare("DELETE from users WHERE id = ?")
+	if err != nil {
+		return err
+	}
+
+	result, err := statement.Exec(user_id)
+	if err != nil {
+		return err
+	}
+
+	dataDeleted, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if dataDeleted == 0 {
+		return errors.New("no user deleted")
 	}
 
 	return nil

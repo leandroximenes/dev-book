@@ -167,5 +167,31 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Delete user"))
+	params := mux.Vars(r)
+
+	userId, err := strconv.ParseUint(params["userId"], 10, 64)
+	if err != nil || !(userId > 0) {
+		log.Println("Invalid param:", err)
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	db, err := config.Connect()
+	if err != nil {
+		log.Println("Error connecting to database:", err)
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repository := repository.NewUserRepository(db)
+	err = repository.DeleteUser(userId)
+	if err != nil {
+		log.Println("Error delete user:", err)
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	log.Printf("User removed with success")
+	responses.JSON(w, http.StatusNoContent, nil)
 }
