@@ -1,5 +1,5 @@
 # ——— Base image ——— 
-FROM mcr.microsoft.com/devcontainers/go:1-1.22-bookworm
+FROM mcr.microsoft.com/devcontainers/go:1-1.23-bookworm
 
 # ——— Install necessary packages ——— 
 RUN apt-get update && apt-get install -y \
