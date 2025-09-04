@@ -3,6 +3,8 @@ package dto
 import (
 	"errors"
 	"strings"
+
+	"github.com/badoux/checkmail"
 )
 
 type UserDto struct {
@@ -10,6 +12,12 @@ type UserDto struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type UserUpdateDto struct {
+	Id    uint   `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
 func (user *UserDto) validateRequired() error {
@@ -38,14 +46,12 @@ func (user *UserDto) Prepare() error {
 		return err
 	}
 
+	if err := checkEmail(user.Email); err != nil {
+		return err
+	}
+
 	user.format()
 	return nil
-}
-
-type UserUpdateDto struct {
-	Id    uint   `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
 }
 
 func (user *UserUpdateDto) validateRequired() error {
@@ -70,6 +76,18 @@ func (user *UserUpdateDto) Prepare() error {
 		return err
 	}
 
+	if err := checkEmail(user.Email); err != nil {
+		return err
+	}
+
 	user.format()
+	return nil
+}
+
+func checkEmail(email string) error {
+	err := checkmail.ValidateFormat(email)
+	if err != nil {
+		return errors.New("email has invalid format")
+	}
 	return nil
 }
