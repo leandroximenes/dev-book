@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/badoux/checkmail"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserDto struct {
@@ -36,9 +37,18 @@ func (user *UserDto) validateRequired() error {
 	return nil
 }
 
-func (user *UserDto) format() {
+func (user *UserDto) format() error {
 	user.Name = strings.TrimSpace(user.Name)
 	user.Email = strings.TrimSpace(user.Email)
+
+	criptedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	user.Password = string(criptedPassword)
+
+	return nil
+
 }
 
 func (user *UserDto) Prepare() error {
